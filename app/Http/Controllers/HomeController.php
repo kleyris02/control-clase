@@ -141,9 +141,9 @@ class HomeController extends Controller
                 return [
                     'periodo' => $periodo->name,
                     'controles' => $periodo->planes()->where('departament_id', $departament_id)->get()->map(
-                        fn ($plan) => $plan->controls->count()
-                    )->sum(),
-                    'informes' => $periodo->informes()->where('departament_id', $departament_id)->count(),
+                        fn ($plan) => $plan->controls->count() ?? 0
+                    )->sum() ?? 0,
+                    'informes' => $periodo->informes()->where('departament_id', $departament_id)->count() ?? 0,
                 ];
             }
         );
@@ -166,7 +166,12 @@ class HomeController extends Controller
 
         $plan = Plan::whereNull('periodo_id')->where('departament_id', $departament_id)->first();
 
-        $controles = $plan->controls->count();
+        if (!is_null($plan)) {
+            $controles = $plan->controls->count();
+        } else {
+            $controles = 0;
+        }
+
         $informes = Informe::whereNull('periodo_id')->where('departament_id', $departament_id)->count();
 
         $next = null;
